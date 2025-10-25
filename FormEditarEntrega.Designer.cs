@@ -81,7 +81,7 @@
             this.Controls.Add(this.txtRuta);
             this.Controls.Add(this.txtEscuela);
             this.Name = "FormEditarEntrega";
-            this.btnGuardar.Click += new System.EventHandler(this.btnGuardar_Click);
+            this.Click += new System.EventHandler(this.btnGuardar_Click);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -89,7 +89,6 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.TextBox txtEscuela;
         private System.Windows.Forms.TextBox txtRuta;
         private System.Windows.Forms.TextBox txtCantidad;

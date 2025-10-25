@@ -15,11 +15,12 @@ namespace Shonko1
         public dataGridViewEntregas()
         {
             InitializeComponent();
+
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            // Puedes inicializar cosas aquí si lo necesitas
+           
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -86,24 +87,14 @@ namespace Shonko1
 
 int currentIndex = 0;
 
-    private void btnImprimirEtiquetas_Click(object sender, EventArgs e)
-    {
-        PrintDocument printDoc = new PrintDocument();
-        printDoc.DefaultPageSettings.PaperSize = new PaperSize("A4", 827, 1169);
-        printDoc.DefaultPageSettings.Margins = new Margins(50, 50, 50, 50);
-        printDoc.PrintPage += PrintDoc_PrintPage;
-
-        // Mostrar cuadro de diálogo para elegir impresora y opciones
-        PrintDialog printDialog = new PrintDialog
+        private void btnImprimirEtiquetas_Click(object sender, EventArgs e)
         {
-            Document = printDoc,
-            AllowSomePages = true,
-            UseEXDialog = true
-        };
+            PrintDocument printDoc = new PrintDocument();
+            printDoc.DefaultPageSettings.PaperSize = new PaperSize("A4", 827, 1169);
+            printDoc.DefaultPageSettings.Margins = new Margins(50, 50, 50, 50);
+            printDoc.PrintPage += PrintDoc_PrintPage;
 
-        if (printDialog.ShowDialog() == DialogResult.OK)
-        {
-            // Vista previa antes de imprimir
+            // Vista previa
             PrintPreviewDialog preview = new PrintPreviewDialog
             {
                 Document = printDoc,
@@ -111,11 +102,24 @@ int currentIndex = 0;
                 Height = 800
             };
 
+            // Mostrar vista previa
             preview.ShowDialog();
-        }
-    }
 
-    private void PrintDoc_PrintPage(object sender, PrintPageEventArgs e)
+            // Después de cerrar la vista previa, mostrar diálogo para elegir impresora
+            PrintDialog printDialog = new PrintDialog
+            {
+                Document = printDoc,
+                AllowSomePages = true,
+                UseEXDialog = true
+            };
+
+            if (printDialog.ShowDialog() == DialogResult.OK)
+            {
+                printDoc.Print();
+            }
+        }
+
+        private void PrintDoc_PrintPage(object sender, PrintPageEventArgs e)
     {
         int etiquetasPorPagina = 4;
         int anchoEtiqueta = 350;
@@ -146,5 +150,24 @@ int currentIndex = 0;
 
         e.HasMorePages = currentIndex < lista.Count;
     }
-}
+
+        private void btnEditar_Click(object sender, EventArgs e)
+        {
+            if (dataGridViewEntregas1.CurrentRow != null)
+            {
+                var entrega = (Entrega)dataGridViewEntregas1.CurrentRow.DataBoundItem;
+                FormEditarEntrega formEditar = new FormEditarEntrega(entrega);
+
+                if (formEditar.ShowDialog() == DialogResult.OK)
+                {
+                    dataGridViewEntregas1.Refresh(); // Actualiza la vista
+                }
+            }
+            else
+            {
+                MessageBox.Show("Selecciona una fila para editar.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+    }
 }
