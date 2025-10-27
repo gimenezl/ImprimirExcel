@@ -35,40 +35,52 @@ namespace Shonko1
                 string filePath = openFileDialog.FileName;
                 List<Entrega> entregas = new List<Entrega>();
 
-                using (var workbook = new XLWorkbook(filePath))
+                try
                 {
-                    var worksheet = workbook.Worksheet(1); // Primera hoja
-                    var rows = worksheet.RangeUsed().RowsUsed().Skip(1); // Saltar encabezado
-
-                    foreach (var row in rows)
+                    using (var workbook = new XLWorkbook(filePath))
                     {
-                        entregas.Add(new Entrega
-                        {
-                            Escuela = row.Cell(1).GetString(),
-                            Ruta = row.Cell(2).GetString(),
-                            Cantidad = row.Cell(3).GetValue<int>(), // Mejor usar GetValue<int>()
-                            Menu = row.Cell(4).GetString()
-                        });
-                    }
-                }
+                        var worksheet = workbook.Worksheet(1);
+                        var rows = worksheet.RangeUsed().RowsUsed().Skip(1);
 
-                dataGridViewEntregas1.DataSource = entregas;
+                        foreach (var row in rows)
+                        {
+                            // Validar que la fila tenga al menos 4 columnas con datos
+                            if (row.CellsUsed().Count() < 4)
+                                continue;
+
+                            entregas.Add(new Entrega
+                            {
+                                Escuela = row.Cell(1).GetString(),
+                                Ruta = row.Cell(2).GetString(),
+                                Cantidad = row.Cell(3).GetValue<int>(),
+                                Menu = row.Cell(4).GetString()
+                            });
+                        }
+                    }
+
+                    if (entregas.Count == 0)
+                    {
+                        MessageBox.Show("El archivo no contiene datos válidos.", "Advertencia",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    dataGridViewEntregas1.DataSource = entregas;
+                    MessageBox.Show($"Se cargaron {entregas.Count} entregas correctamente.",
+                        "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al cargar el archivo:\n{ex.Message}",
+                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
+   
 
         private void button2_Click(object sender, EventArgs e)
         {
-            // Aquí pondremos la lógica para guardar cambios más adelante
-        }
-
-        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
-
-        private void dataGridView1_CellContentClick_1(object sender, DataGridViewCellEventArgs e)
-        {
-
+            
         }
 
         private void dataGridViewEntregas1_CellDoubleClick_1(object sender, DataGridViewCellEventArgs e)
@@ -87,69 +99,52 @@ namespace Shonko1
 
 int currentIndex = 0;
 
+
         private void btnImprimirEtiquetas_Click(object sender, EventArgs e)
         {
+            currentIndex = 0;
+
             PrintDocument printDoc = new PrintDocument();
             printDoc.DefaultPageSettings.PaperSize = new PaperSize("A4", 827, 1169);
             printDoc.DefaultPageSettings.Margins = new Margins(50, 50, 50, 50);
             printDoc.PrintPage += PrintDoc_PrintPage;
 
-            // Vista previa
-            PrintPreviewDialog preview = new PrintPreviewDialog
-            {
-                Document = printDoc,
-                Width = 1000,
-                Height = 800
-            };
-
-            // Mostrar vista previa
-            preview.ShowDialog();
-
-            // Después de cerrar la vista previa, mostrar diálogo para elegir impresora
-            PrintDialog printDialog = new PrintDialog
-            {
-                Document = printDoc,
-                AllowSomePages = true,
-                UseEXDialog = true
-            };
-
-            if (printDialog.ShowDialog() == DialogResult.OK)
-            {
-                printDoc.Print();
-            }
+            FormVistaPrevia vistaPrevia = new FormVistaPrevia(printDoc);
+            vistaPrevia.ShowDialog();
         }
 
         private void PrintDoc_PrintPage(object sender, PrintPageEventArgs e)
-    {
-        int etiquetasPorPagina = 4;
-        int anchoEtiqueta = 350;
-        int altoEtiqueta = 250;
-        int x = e.MarginBounds.Left;
-        int y = e.MarginBounds.Top;
-
-        Font fontTitulo = new Font("Arial", 16, FontStyle.Bold);
-        Font fontTexto = new Font("Arial", 14);
-
-        var lista = (List<Entrega>)dataGridViewEntregas1.DataSource;
-
-        for (int i = 0; i < etiquetasPorPagina && currentIndex < lista.Count; i++)
         {
-            var entrega = lista[currentIndex];
+            int etiquetasPorPagina = 4;
+            int anchoEtiqueta = 350;
+            int altoEtiqueta = 250;
+            int x = e.MarginBounds.Left;
+            int y = e.MarginBounds.Top;
 
-            e.Graphics.FillRectangle(Brushes.White, x, y, anchoEtiqueta, altoEtiqueta);
-            e.Graphics.DrawRectangle(new Pen(Color.Black, 2), x, y, anchoEtiqueta, altoEtiqueta);
+            Font fontTitulo = new Font("Arial", 16, FontStyle.Bold);
+            Font fontTexto = new Font("Arial", 14);
 
-            e.Graphics.DrawString($"Escuela: {entrega.Escuela}", fontTitulo, Brushes.Black, x + 10, y + 10);
-            e.Graphics.DrawString($"Ruta: {entrega.Ruta}", fontTexto, Brushes.Black, x + 10, y + 50);
-            e.Graphics.DrawString($"Cantidad: {entrega.Cantidad}", fontTexto, Brushes.Black, x + 10, y + 90);
-            e.Graphics.DrawString($"Menú: {entrega.Menu}", fontTexto, Brushes.Black, x + 10, y + 130);
+            var lista = (List<Entrega>)dataGridViewEntregas1.DataSource;
 
-            y += altoEtiqueta + 20;
-            currentIndex++;
+            for (int i = 0; i < etiquetasPorPagina && currentIndex < lista.Count; i++)
+            {
+                var entrega = lista[currentIndex];
+
+                e.Graphics.FillRectangle(Brushes.White, x, y, anchoEtiqueta, altoEtiqueta);
+                e.Graphics.DrawRectangle(new Pen(Color.Black, 2), x, y, anchoEtiqueta, altoEtiqueta);
+
+                e.Graphics.DrawString($"Escuela: {entrega.Escuela}", fontTitulo, Brushes.Black, x + 10, y + 10);
+                e.Graphics.DrawString($"Ruta: {entrega.Ruta}", fontTexto, Brushes.Black, x + 10, y + 50);
+                e.Graphics.DrawString($"Cantidad: {entrega.Cantidad}", fontTexto, Brushes.Black, x + 10, y + 90);
+                e.Graphics.DrawString($"Menú: {entrega.Menu}", fontTexto, Brushes.Black, x + 10, y + 130);
+
+                y += altoEtiqueta + 20;
+                currentIndex++;
+            }
+
+            e.HasMorePages = currentIndex < lista.Count;
         }
 
-        e.HasMorePages = currentIndex < lista.Count;
-    }
 
         private void btnEditar_Click(object sender, EventArgs e)
         {

@@ -30,7 +30,7 @@
         {
             this.printPreviewControl1 = new System.Windows.Forms.PrintPreviewControl();
             this.btnImprimir = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
+            this.btnCancelar = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // printPreviewControl1
@@ -49,21 +49,22 @@
             this.btnImprimir.Text = "imprimir";
             this.btnImprimir.UseVisualStyleBackColor = true;
             // 
-            // button1
+            // btnCancelar
             // 
-            this.button1.Location = new System.Drawing.Point(713, 159);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 2;
-            this.button1.Text = "cancelar";
-            this.button1.UseVisualStyleBackColor = true;
+            this.btnCancelar.Location = new System.Drawing.Point(713, 159);
+            this.btnCancelar.Name = "btnCancelar";
+            this.btnCancelar.Size = new System.Drawing.Size(75, 23);
+            this.btnCancelar.TabIndex = 2;
+            this.btnCancelar.Text = "cancelar";
+            this.btnCancelar.UseVisualStyleBackColor = true;
+            this.btnCancelar.Click += new System.EventHandler(this.button1_Click);
             // 
             // FormVistaPrevia
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1063, 647);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.btnCancelar);
             this.Controls.Add(this.btnImprimir);
             this.Controls.Add(this.printPreviewControl1);
             this.Name = "FormVistaPrevia";
@@ -76,6 +77,6 @@
 
         private System.Windows.Forms.PrintPreviewControl printPreviewControl1;
         private System.Windows.Forms.Button btnImprimir;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnCancelar;
     }
 }
