@@ -79,6 +79,8 @@
             this.dataGridViewEntregas1.DefaultCellStyle = dataGridViewCellStyle2;
             this.dataGridViewEntregas1.Location = new System.Drawing.Point(3, 98);
             this.dataGridViewEntregas1.Name = "dataGridViewEntregas1";
+            this.dataGridViewEntregas1.ReadOnly = true;
+            this.dataGridViewEntregas1.RowHeadersVisible = false;
             this.dataGridViewEntregas1.Size = new System.Drawing.Size(1386, 542);
             this.dataGridViewEntregas1.TabIndex = 2;
             this.dataGridViewEntregas1.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewEntregas1_CellDoubleClick_1);

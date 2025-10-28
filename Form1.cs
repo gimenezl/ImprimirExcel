@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Windows.Forms;
 
 
@@ -20,9 +21,8 @@ namespace Shonko1
 
         private void Form1_Load(object sender, EventArgs e)
         {
-           
-        }
 
+        }
         private void button1_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
@@ -50,10 +50,16 @@ namespace Shonko1
 
                             entregas.Add(new Entrega
                             {
+                                // Campos originales del Excel
                                 Escuela = row.Cell(1).GetString(),
                                 Ruta = row.Cell(2).GetString(),
                                 Cantidad = row.Cell(3).GetValue<int>(),
-                                Menu = row.Cell(4).GetString()
+                                Menu = row.Cell(4).GetString(),
+
+                                // --- NUEVO: Asignar valores por defecto ---
+                                Fecha = DateTime.Now.ToString("dd/MM/yyyy"), // Fecha de hoy
+                                Peso = " KG", // Valor predeterminado
+                                Turno = "MAÑANA" // Valor predeterminado
                             });
                         }
                     }
@@ -76,7 +82,9 @@ namespace Shonko1
                 }
             }
         }
-   
+
+
+
 
         private void button2_Click(object sender, EventArgs e)
         {
@@ -85,19 +93,24 @@ namespace Shonko1
 
         private void dataGridViewEntregas1_CellDoubleClick_1(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0)
+            if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
             {
+                // Obtener el nombre de la propiedad de la columna
+                string campoAFoco = dataGridViewEntregas1.Columns[e.ColumnIndex].DataPropertyName;
+
                 var entrega = (Entrega)dataGridViewEntregas1.Rows[e.RowIndex].DataBoundItem;
-                FormEditarEntrega formEditar = new FormEditarEntrega(entrega);
+
+                // Pasar el nombre del campo al constructor
+                FormEditarEntrega formEditar = new FormEditarEntrega(entrega, campoAFoco);
 
                 if (formEditar.ShowDialog() == DialogResult.OK)
                 {
-                    dataGridViewEntregas1.Refresh(); // Actualiza la vista
+                    dataGridViewEntregas1.Refresh();
                 }
             }
-    }
+        }
 
-int currentIndex = 0;
+        int currentIndex = 0;
 
 
         private void btnImprimirEtiquetas_Click(object sender, EventArgs e)
@@ -115,33 +128,79 @@ int currentIndex = 0;
 
         private void PrintDoc_PrintPage(object sender, PrintPageEventArgs e)
         {
-            int etiquetasPorPagina = 4;
-            int anchoEtiqueta = 350;
-            int altoEtiqueta = 250;
-            int x = e.MarginBounds.Left;
-            int y = e.MarginBounds.Top;
+       
+            Font fontTitulo = new Font("Arial", 14, FontStyle.Bold);
+            Font fontSubTitulo = new Font("Arial", 12, FontStyle.Bold);
+            Font fontCampo = new Font("Arial", 11, FontStyle.Regular);
+            Font fontCampoNegrita = new Font("Arial", 11, FontStyle.Bold);
+            SolidBrush pincelNegro = new SolidBrush(Color.Black);
 
-            Font fontTitulo = new Font("Arial", 16, FontStyle.Bold);
-            Font fontTexto = new Font("Arial", 14);
+            Image logo = null;
+            try
+            {
+         
+                logo = null;
+            }
+            catch { /* No hacer nada, logo sigue null */ }
+
+      
+            int etiquetasPorPagina = 4;
+            int anchoEtiqueta = 380;
+            int altoEtiqueta = 250;
+            int margenIzquierdo = e.MarginBounds.Left + 20;
+            int y = e.MarginBounds.Top;
 
             var lista = (List<Entrega>)dataGridViewEntregas1.DataSource;
 
             for (int i = 0; i < etiquetasPorPagina && currentIndex < lista.Count; i++)
             {
                 var entrega = lista[currentIndex];
+                int x = margenIzquierdo;
 
-                e.Graphics.FillRectangle(Brushes.White, x, y, anchoEtiqueta, altoEtiqueta);
-                e.Graphics.DrawRectangle(new Pen(Color.Black, 2), x, y, anchoEtiqueta, altoEtiqueta);
+                e.Graphics.DrawRectangle(new Pen(pincelNegro, 1), x, y, anchoEtiqueta, altoEtiqueta);
 
-                e.Graphics.DrawString($"Escuela: {entrega.Escuela}", fontTitulo, Brushes.Black, x + 10, y + 10);
-                e.Graphics.DrawString($"Ruta: {entrega.Ruta}", fontTexto, Brushes.Black, x + 10, y + 50);
-                e.Graphics.DrawString($"Cantidad: {entrega.Cantidad}", fontTexto, Brushes.Black, x + 10, y + 90);
-                e.Graphics.DrawString($"Menú: {entrega.Menu}", fontTexto, Brushes.Black, x + 10, y + 130);
+                int x_texto = x + 120; 
 
-                y += altoEtiqueta + 20;
+                // A. Dibujar Logo (sólo si existe)
+                if (logo != null)
+                {
+                    e.Graphics.DrawImage(logo, x + 10, y + 10, 100, 100);
+                }
+                else
+                {
+                    // Si no hay logo, el texto empieza más a la izquierda
+                    x_texto = x + 15;
+                }
+
+                // B. Título
+                e.Graphics.DrawString("Identificación de Contenedores", fontTitulo, pincelNegro, x_texto, y + 20);
+
+                // C. Escuela
+                e.Graphics.DrawString(entrega.Escuela, fontSubTitulo, pincelNegro, x_texto, y + 55);
+
+                // D. Raciones y Peso (en la misma línea, debajo del logo/título)
+                e.Graphics.DrawString("Raciones: ", fontCampo, pincelNegro, x + 15, y + 130);
+                e.Graphics.DrawString(entrega.Cantidad.ToString(), fontCampoNegrita, pincelNegro, x + 95, y + 130);
+
+                e.Graphics.DrawString("Peso Total: ", fontCampo, pincelNegro, x + 200, y + 130);
+                e.Graphics.DrawString(entrega.Peso, fontCampoNegrita, pincelNegro, x + 285, y + 130);
+
+                // E. Fecha y Turno
+                e.Graphics.DrawString("Fecha: ", fontCampo, pincelNegro, x + 15, y + 170);
+                e.Graphics.DrawString(entrega.Fecha, fontCampoNegrita, pincelNegro, x + 95, y + 170);
+
+                e.Graphics.DrawString("Turno: ", fontCampo, pincelNegro, x + 200, y + 170);
+                e.Graphics.DrawString(entrega.Turno, fontCampoNegrita, pincelNegro, x + 285, y + 170);
+
+                // F. Menú
+                e.Graphics.DrawString("Menú: ", fontCampo, pincelNegro, x + 15, y + 210);
+                e.Graphics.DrawString(entrega.Menu, fontCampoNegrita, pincelNegro, x + 95, y + 210);
+
+                y += altoEtiqueta + 20; // Espacio entre etiquetas
                 currentIndex++;
             }
 
+            // --- 5. Verificar si hay más páginas ---
             e.HasMorePages = currentIndex < lista.Count;
         }
 
