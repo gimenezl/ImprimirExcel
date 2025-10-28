@@ -23,73 +23,6 @@ namespace Shonko1
         {
 
         }
-        private void button1_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog
-            {
-                Filter = "Archivos Excel (*.xlsx)|*.xlsx"
-            };
-
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                string filePath = openFileDialog.FileName;
-                List<Entrega> entregas = new List<Entrega>();
-
-                try
-                {
-                    using (var workbook = new XLWorkbook(filePath))
-                    {
-                        var worksheet = workbook.Worksheet(1);
-                        var rows = worksheet.RangeUsed().RowsUsed().Skip(1);
-
-                        foreach (var row in rows)
-                        {
-                            // Validar que la fila tenga al menos 4 columnas con datos
-                            if (row.CellsUsed().Count() < 4)
-                                continue;
-
-                            entregas.Add(new Entrega
-                            {
-                                // Campos originales del Excel
-                                Escuela = row.Cell(1).GetString(),
-                                Ruta = row.Cell(2).GetString(),
-                                Cantidad = row.Cell(3).GetValue<int>(),
-                                Menu = row.Cell(4).GetString(),
-
-                                // --- NUEVO: Asignar valores por defecto ---
-                                Fecha = DateTime.Now.ToString("dd/MM/yyyy"), // Fecha de hoy
-                                Peso = " KG", // Valor predeterminado
-                                Turno = "MAÑANA" // Valor predeterminado
-                            });
-                        }
-                    }
-
-                    if (entregas.Count == 0)
-                    {
-                        MessageBox.Show("El archivo no contiene datos válidos.", "Advertencia",
-                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
-
-                    dataGridViewEntregas1.DataSource = entregas;
-                    MessageBox.Show($"Se cargaron {entregas.Count} entregas correctamente.",
-                        "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al cargar el archivo:\n{ex.Message}",
-                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-        }
-
-
-
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            
-        }
 
         private void dataGridViewEntregas1_CellDoubleClick_1(object sender, DataGridViewCellEventArgs e)
         {
@@ -111,21 +44,6 @@ namespace Shonko1
         }
 
         int currentIndex = 0;
-
-
-        private void btnImprimirEtiquetas_Click(object sender, EventArgs e)
-        {
-            currentIndex = 0;
-
-            PrintDocument printDoc = new PrintDocument();
-            printDoc.DefaultPageSettings.PaperSize = new PaperSize("A4", 827, 1169);
-            printDoc.DefaultPageSettings.Margins = new Margins(50, 50, 50, 50);
-            printDoc.PrintPage += PrintDoc_PrintPage;
-
-            FormVistaPrevia vistaPrevia = new FormVistaPrevia(printDoc);
-            vistaPrevia.ShowDialog();
-        }
-
         private void PrintDoc_PrintPage(object sender, PrintPageEventArgs e)
         {
        
@@ -200,12 +118,229 @@ namespace Shonko1
                 currentIndex++;
             }
 
-            // --- 5. Verificar si hay más páginas ---
+       
             e.HasMorePages = currentIndex < lista.Count;
         }
 
 
-        private void btnEditar_Click(object sender, EventArgs e)
+        private void toolStripButton1_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "Archivos Excel (*.xlsx)|*.xlsx"
+            };
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string filePath = openFileDialog.FileName;
+                List<Entrega> entregas = new List<Entrega>();
+
+                try
+                {
+                    using (var workbook = new XLWorkbook(filePath))
+                    {
+                        var worksheet = workbook.Worksheet(1);
+                        var rows = worksheet.RangeUsed().RowsUsed().Skip(1);
+
+                        foreach (var row in rows)
+                        {
+
+                            entregas.Add(new Entrega
+                            {
+                                Escuela = row.Cell(1).GetString(),
+                                Ruta = row.Cell(2).GetString(),
+                                Cantidad = row.Cell(3).GetValue<int>(),
+                                Menu = row.Cell(4).GetString(),
+                                Peso = row.Cell(5).GetString(),
+                                Fecha = row.Cell(6).GetString(),
+                                Turno = row.Cell(7).GetString()
+                            });
+
+                        }
+                    }
+
+                    if (entregas.Count == 0)
+                    {
+                        MessageBox.Show("El archivo no contiene datos válidos.", "Advertencia",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    dataGridViewEntregas1.DataSource = entregas;
+                    MessageBox.Show($"Se cargaron {entregas.Count} entregas correctamente.",
+                        "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al cargar el archivo:\n{ex.Message}\n\nAsegúrese de que el archivo tenga el formato correcto (7 columnas).",
+                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+
+        }
+
+        private void toolStripButton2_Click(object sender, EventArgs e)
+        {
+            var lista = (List<Entrega>)dataGridViewEntregas1.DataSource;
+
+            if (lista == null || lista.Count == 0)
+            {
+                MessageBox.Show("No hay datos para guardar.", "Aviso",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog
+            {
+                Filter = "Archivo Excel (*.xlsx)|*.xlsx",
+                Title = "Guardar cambios en Excel",
+                FileName = $"Entregas_{DateTime.Now:yyyyMMdd}.xlsx"
+            };
+
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    using (var workbook = new XLWorkbook())
+                    {
+                        var worksheet = workbook.Worksheets.Add("Entregas");
+
+                        worksheet.Cell(1, 1).Value = "Escuela";
+                        worksheet.Cell(1, 2).Value = "Ruta";
+                        worksheet.Cell(1, 3).Value = "Cantidad";
+                        worksheet.Cell(1, 4).Value = "Menu";
+                        worksheet.Cell(1, 5).Value = "Peso";
+                        worksheet.Cell(1, 6).Value = "Fecha";
+                        worksheet.Cell(1, 7).Value = "Turno";
+
+
+                        int filaActual = 2;
+                        foreach (var entrega in lista)
+                        {
+                            worksheet.Cell(filaActual, 1).Value = entrega.Escuela;
+                            worksheet.Cell(filaActual, 2).Value = entrega.Ruta;
+                            worksheet.Cell(filaActual, 3).Value = entrega.Cantidad;
+                            worksheet.Cell(filaActual, 4).Value = entrega.Menu;
+                            worksheet.Cell(filaActual, 5).Value = entrega.Peso;
+                            worksheet.Cell(filaActual, 6).Value = entrega.Fecha;
+                            worksheet.Cell(filaActual, 7).Value = entrega.Turno;
+                            filaActual++;
+                        }
+
+
+                        worksheet.Columns().AdjustToContents();
+                        workbook.SaveAs(saveFileDialog.FileName);
+
+                        MessageBox.Show("¡Cambios guardados con éxito!", "Éxito",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al guardar el archivo:\n{ex.Message}", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+
+        }
+
+        private void toolStripButton3_Click(object sender, EventArgs e)
+        {
+            try
+            {
+
+                List<Entrega> lista;
+                if (dataGridViewEntregas1.DataSource == null)
+                {
+                    lista = new List<Entrega>();
+                    dataGridViewEntregas1.DataSource = lista;
+                }
+                else
+                {
+                    lista = (List<Entrega>)dataGridViewEntregas1.DataSource;
+                }
+
+
+                Entrega nuevaEntrega = new Entrega
+                {
+                    Escuela = "",
+                    Ruta = "",
+                    Cantidad = 1,
+                    Menu = "",
+                    Fecha = DateTime.Now.ToString("dd/MM/yyyy"),
+                    Peso = " KG",
+                    Turno = "MAÑANA"
+                };
+
+
+                FormEditarEntrega formEditar = new FormEditarEntrega(nuevaEntrega);
+
+
+                if (formEditar.ShowDialog() == DialogResult.OK)
+                {
+
+                    lista.Add(nuevaEntrega);
+
+
+                    dataGridViewEntregas1.DataSource = null;
+                    dataGridViewEntregas1.DataSource = lista;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al añadir fila: {ex.Message}", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+        }
+
+        private void toolStripButton4_Click(object sender, EventArgs e)
+        {
+
+            if (dataGridViewEntregas1.DataSource == null ||
+                ((List<Entrega>)dataGridViewEntregas1.DataSource).Count == 0)
+            {
+                MessageBox.Show("La lista ya está vacía.", "Aviso",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+
+            if (MessageBox.Show("¿Está seguro de que desea borrar todos los datos de la lista actual?",
+                "Confirmar Vaciar", MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning) == DialogResult.Yes)
+            {
+                try
+                {
+
+                    List<Entrega> listaVacia = new List<Entrega>();
+                    dataGridViewEntregas1.DataSource = listaVacia;
+
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al vaciar la lista: {ex.Message}", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void toolStripButton5_Click(object sender, EventArgs e)
+        {
+            currentIndex = 0;
+
+            PrintDocument printDoc = new PrintDocument();
+            printDoc.DefaultPageSettings.PaperSize = new PaperSize("A4", 827, 1169);
+            printDoc.DefaultPageSettings.Margins = new Margins(50, 50, 50, 50);
+            printDoc.PrintPage += PrintDoc_PrintPage;
+
+            FormVistaPrevia vistaPrevia = new FormVistaPrevia(printDoc);
+            vistaPrevia.ShowDialog();
+
+        }
+
+        private void editarFilaToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (dataGridViewEntregas1.CurrentRow != null)
             {
@@ -221,7 +356,52 @@ namespace Shonko1
             {
                 MessageBox.Show("Selecciona una fila para editar.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
+
         }
 
+        private void eliminarFilaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (dataGridViewEntregas1.CurrentRow == null)
+            {
+                MessageBox.Show("Por favor, seleccione la fila que desea eliminar.", "Aviso",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+
+            var entregaSeleccionada = (Entrega)dataGridViewEntregas1.CurrentRow.DataBoundItem;
+            string msj = $"¿Está seguro de que desea eliminar la entrega de:\n\nEscuela: {entregaSeleccionada.Escuela}\nMenú: {entregaSeleccionada.Menu}";
+
+            if (MessageBox.Show(msj, "Confirmar Eliminación",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                try
+                {
+                    // Elimina  la entrega de la lista
+                    var lista = (List<Entrega>)dataGridViewEntregas1.DataSource;
+                    lista.Remove(entregaSeleccionada);
+
+
+                    dataGridViewEntregas1.DataSource = null;
+                    dataGridViewEntregas1.DataSource = lista;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al eliminar la fila: {ex.Message}", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+
+        }
+
+        private void toolStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
+        }
+
+        private void dataGridViewEntregas1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
     }
 }
