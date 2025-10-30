@@ -16,7 +16,7 @@ namespace Shonko1
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new dataGridViewEntregas());
+            Application.Run(new FormInicio());
         }
     }
 }
