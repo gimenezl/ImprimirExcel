@@ -34,5 +34,15 @@ namespace Shonko1
         {
             this.Close(); // Cierra el formulario de inicio y termina la aplicación
         }
+
+        private void btnEtiquetasDietas_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void FormInicio_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

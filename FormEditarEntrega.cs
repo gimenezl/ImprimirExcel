@@ -16,7 +16,7 @@ namespace Shonko1
 
             // Cargar datos
             txtEscuela.Text = entrega.Escuela;
-            txtRuta.Text = entrega.Ruta;
+
             txtCantidad.Text = entrega.Cantidad.ToString();
             txtMenu.Text = entrega.Menu;
             txtPeso.Text = entrega.Peso;
@@ -33,10 +33,6 @@ namespace Shonko1
                     case "Escuela":
                         this.ActiveControl = txtEscuela; // Añadir esto
                         txtEscuela.SelectAll();
-                        break;
-                    case "Ruta":
-                        this.ActiveControl = txtRuta; // Añadir esto
-                        txtRuta.SelectAll();
                         break;
                     case "Cantidad":
                         this.ActiveControl = txtCantidad; // Añadir esto
@@ -80,15 +76,7 @@ namespace Shonko1
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtEscuela.Focus();
                 return;
-            }
-
-            if (string.IsNullOrWhiteSpace(txtRuta.Text))
-            {
-                MessageBox.Show("El campo Ruta no puede estar vacío.", "Validación",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtRuta.Focus();
-                return;
-            }
+            }  
 
             if (string.IsNullOrWhiteSpace(txtMenu.Text))
             {
@@ -132,7 +120,6 @@ namespace Shonko1
 
             // Guardar cambios
             EntregaActual.Escuela = txtEscuela.Text.Trim();
-            EntregaActual.Ruta = txtRuta.Text.Trim();
             EntregaActual.Cantidad = cantidad;
             EntregaActual.Menu = txtMenu.Text.Trim();
             EntregaActual.Peso = txtPeso.Text.Trim();

@@ -13,6 +13,7 @@ namespace Shonko1
 {
     public partial class dataGridViewEntregas : Form
     {
+        private List<ReglaMenu> _listaDeReglas;
         public dataGridViewEntregas()
         {
             InitializeComponent();
@@ -21,7 +22,7 @@ namespace Shonko1
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            _listaDeReglas = GestorDeReglas.CargarReglas();
         }
 
         private void dataGridViewEntregas1_CellDoubleClick_1(object sender, DataGridViewCellEventArgs e)
@@ -127,57 +128,111 @@ namespace Shonko1
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
-                Filter = "Archivos Excel (*.xlsx)|*.xlsx"
+                Filter = "Archivos Excel (*.xlsx)|*.xlsx",
+                Title = "Cargar Totales de Entregas"
             };
 
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            if (openFileDialog.ShowDialog() != DialogResult.OK)
             {
-                string filePath = openFileDialog.FileName;
-                List<Entrega> entregas = new List<Entrega>();
-
-                try
-                {
-                    using (var workbook = new XLWorkbook(filePath))
-                    {
-                        var worksheet = workbook.Worksheet(1);
-                        var rows = worksheet.RangeUsed().RowsUsed().Skip(1);
-
-                        foreach (var row in rows)
-                        {
-
-                            entregas.Add(new Entrega
-                            {
-                                Escuela = row.Cell(1).GetString(),
-                                Ruta = row.Cell(2).GetString(),
-                                Cantidad = row.Cell(3).GetValue<int>(),
-                                Menu = row.Cell(4).GetString(),
-                                Peso = row.Cell(5).GetString(),
-                                Fecha = row.Cell(6).GetString(),
-                                Turno = row.Cell(7).GetString()
-                            });
-
-                        }
-                    }
-
-                    if (entregas.Count == 0)
-                    {
-                        MessageBox.Show("El archivo no contiene datos válidos.", "Advertencia",
-                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
-
-                    dataGridViewEntregas1.DataSource = entregas;
-                    MessageBox.Show($"Se cargaron {entregas.Count} entregas correctamente.",
-                        "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al cargar el archivo:\n{ex.Message}\n\nAsegúrese de que el archivo tenga el formato correcto (7 columnas).",
-                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                return;
             }
 
+            string filePath = openFileDialog.FileName;
+            List<Entrega> listaOriginal = new List<Entrega>();
+            List<Entrega> listaProcesada = new List<Entrega>();
+
+            try
+            {
+                // 1. Leer el Excel original
+                using (var workbook = new XLWorkbook(filePath))
+                {
+                    var worksheet = workbook.Worksheet(1);
+
+                    // (Usamos RowsUsed() para evitar el error de la imagen anterior)
+                    var rows = worksheet.RowsUsed().Skip(1);
+
+                    foreach (var row in rows)
+                    {
+                        listaOriginal.Add(new Entrega
+                        {
+                            Escuela = row.Cell(1).GetString(),
+                            Cantidad = row.Cell(2).GetValue<int>(),
+                            Peso = row.Cell(3).GetString(),
+                            Menu = row.Cell(4).GetString(),
+                            Turno = row.Cell(5).GetString(),
+
+                            // --- LÍNEA ARREGLADA ---
+                            // (GetFormattedString() lee la fecha como se ve en Excel)
+                            Fecha = row.Cell(6).GetFormattedString()
+                        });
+                    }
+                }
+
+                if (listaOriginal.Count == 0)
+                {
+                    MessageBox.Show("El archivo no contiene datos válidos.", "Advertencia",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // 2. PROCESAR LA LISTA (La Calculadora)
+                foreach (var entrega in listaOriginal)
+                {
+                    var regla = _listaDeReglas.FirstOrDefault(r =>
+                        r.NombreMenu.Equals(entrega.Menu, StringComparison.OrdinalIgnoreCase) &&
+                        r.TipoUnidad == "Contenedor");
+
+                    if (regla != null)
+                    {
+                        // (Lógica de cálculo de contenedores)
+                        int maxPorContenedor = regla.CantidadMaxima;
+                        int totalRaciones = entrega.Cantidad;
+                        int contenedoresCompletos = totalRaciones / maxPorContenedor;
+                        int sobrante = totalRaciones % maxPorContenedor;
+
+                        for (int i = 0; i < contenedoresCompletos; i++)
+                        {
+                            listaProcesada.Add(new Entrega
+                            {
+                                Escuela = entrega.Escuela,
+                                Cantidad = maxPorContenedor,
+                                Menu = entrega.Menu,
+                                Peso = entrega.Peso,
+                                Fecha = entrega.Fecha,
+                                Turno = entrega.Turno
+                            });
+                        }
+                        if (sobrante > 0)
+                        {
+                            listaProcesada.Add(new Entrega
+                            {
+                                Escuela = entrega.Escuela,
+                                Cantidad = sobrante,
+                                Menu = entrega.Menu,
+                                Peso = entrega.Peso,
+                                Fecha = entrega.Fecha,
+                                Turno = entrega.Turno
+                            });
+                        }
+                    }
+                    else
+                    {
+                        listaProcesada.Add(entrega);
+                    }
+                }
+
+                // 3. Mostrar el resultado procesado
+                dataGridViewEntregas1.DataSource = listaProcesada;
+                MessageBox.Show($"Se procesaron {listaOriginal.Count} filas del Excel, generando {listaProcesada.Count} etiquetas.",
+                    "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al procesar el archivo:\n{ex.Message}\n\nAsegúrese de que el archivo tenga 6 columnas en el orden correcto.",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
+
 
         private void toolStripButton2_Click(object sender, EventArgs e)
         {
@@ -205,28 +260,28 @@ namespace Shonko1
                     {
                         var worksheet = workbook.Worksheets.Add("Entregas");
 
-                        worksheet.Cell(1, 1).Value = "Escuela";
-                        worksheet.Cell(1, 2).Value = "Ruta";
-                        worksheet.Cell(1, 3).Value = "Cantidad";
-                        worksheet.Cell(1, 4).Value = "Menu";
-                        worksheet.Cell(1, 5).Value = "Peso";
-                        worksheet.Cell(1, 6).Value = "Fecha";
-                        worksheet.Cell(1, 7).Value = "Turno";
+                        // --- INICIO DE CAMBIOS ---
+                        // Escribir Encabezados (en el nuevo orden)
+                        worksheet.Cell(1, 1).Value = "escuela";
+                        worksheet.Cell(1, 2).Value = "raciones";
+                        worksheet.Cell(1, 3).Value = "peso";
+                        worksheet.Cell(1, 4).Value = "men";
+                        worksheet.Cell(1, 5).Value = "turno";
+                        worksheet.Cell(1, 6).Value = "fecha";
 
-
+                        // Escribir datos (en el nuevo orden)
                         int filaActual = 2;
                         foreach (var entrega in lista)
                         {
                             worksheet.Cell(filaActual, 1).Value = entrega.Escuela;
-                            worksheet.Cell(filaActual, 2).Value = entrega.Ruta;
-                            worksheet.Cell(filaActual, 3).Value = entrega.Cantidad;
+                            worksheet.Cell(filaActual, 2).Value = entrega.Cantidad;
+                            worksheet.Cell(filaActual, 3).Value = entrega.Peso;
                             worksheet.Cell(filaActual, 4).Value = entrega.Menu;
-                            worksheet.Cell(filaActual, 5).Value = entrega.Peso;
+                            worksheet.Cell(filaActual, 5).Value = entrega.Turno;
                             worksheet.Cell(filaActual, 6).Value = entrega.Fecha;
-                            worksheet.Cell(filaActual, 7).Value = entrega.Turno;
                             filaActual++;
                         }
-
+                        // --- FIN DE CAMBIOS ---
 
                         worksheet.Columns().AdjustToContents();
                         workbook.SaveAs(saveFileDialog.FileName);
@@ -264,7 +319,6 @@ namespace Shonko1
                 Entrega nuevaEntrega = new Entrega
                 {
                     Escuela = "",
-                    Ruta = "",
                     Cantidad = 1,
                     Menu = "",
                     Fecha = DateTime.Now.ToString("dd/MM/yyyy"),
@@ -400,6 +454,11 @@ namespace Shonko1
         }
 
         private void dataGridViewEntregas1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
 
         }

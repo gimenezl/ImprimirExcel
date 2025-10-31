@@ -14,9 +14,9 @@ namespace Shonko1
             InitializeComponent();
         }
 
+        // Evento Load (Conectar desde el diseñador)
         private void FormGestionMenus_Load(object sender, EventArgs e)
         {
-            // Carga las reglas al iniciar
             listaDeReglas = GestorDeReglas.CargarReglas();
 
             CargarTiposUnidad();
@@ -50,12 +50,6 @@ namespace Shonko1
             txtNombreMenu.Focus();
         }
 
-        // Evento Click del botón 'Nuevo'
-        private void btnNuevo_Click(object sender, EventArgs e)
-        {
-            LimpiarCampos();
-        }
-
         // Evento Click del botón 'Eliminar'
         private void btnEliminar_Click(object sender, EventArgs e)
         {
@@ -72,7 +66,7 @@ namespace Shonko1
                 "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
                 listaDeReglas.Remove(reglaSeleccionada);
-                GestorDeReglas.GuardarReglas(listaDeReglas); // Guarda los cambios
+                GestorDeReglas.GuardarReglas(listaDeReglas);
                 RefrescarGrid();
             }
         }
@@ -80,7 +74,6 @@ namespace Shonko1
         // Evento Click del botón 'Guardar'
         private void btnGuardar_Click(object sender, EventArgs e)
         {
-            // Validaciones
             if (string.IsNullOrWhiteSpace(txtNombreMenu.Text))
             {
                 MessageBox.Show("El nombre del menú no puede estar vacío.", "Error",
@@ -125,23 +118,28 @@ namespace Shonko1
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
-            GestorDeReglas.GuardarReglas(listaDeReglas); // Guarda los cambios
+            GestorDeReglas.GuardarReglas(listaDeReglas);
             RefrescarGrid();
         }
 
-        // Evento para cargar datos en los campos al hacer clic en la grilla
         private void dgvReglas_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0)
+            // (Comprueba si el clic es en una fila válida)
+            if (e.RowIndex >= 0 && e.RowIndex != dgvReglas.NewRowIndex)
             {
-                var regla = (ReglaMenu)dgvReglas.Rows[e.RowIndex].DataBoundItem;
-                txtNombreMenu.Text = regla.NombreMenu;
-                numCantidad.Value = regla.CantidadMaxima;
-                cmbTipoUnidad.SelectedItem = regla.TipoUnidad;
+                // (Usa 'as' para evitar el crash si el objeto es null)
+                var regla = dgvReglas.Rows[e.RowIndex].DataBoundItem as ReglaMenu;
+
+                if (regla != null)
+                {
+                    txtNombreMenu.Text = regla.NombreMenu;
+                    numCantidad.Value = regla.CantidadMaxima;
+                    cmbTipoUnidad.SelectedItem = regla.TipoUnidad;
+                }
             }
         }
-    
-            private void label1_Click(object sender, EventArgs e)
+
+        private void label1_Click(object sender, EventArgs e)
 
         {
 
@@ -150,13 +148,5 @@ namespace Shonko1
         }
 
 
-
-        private void button1_Click(object sender, EventArgs e)
-
-        {
-
-
-
-        }
     }
 }

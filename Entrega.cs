@@ -18,6 +18,6 @@ namespace Shonko1
         public string Fecha { get; set; }    // Nuevo campo «fecha»
         public string Turno { get; set; }    // Nuevo campo «turno»
 
-        public string Ruta { get; set; }
+
     }
 }

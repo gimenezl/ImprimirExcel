@@ -32,7 +32,6 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.btnEliminar = new System.Windows.Forms.Button();
             this.btnGuardar = new System.Windows.Forms.Button();
-            this.btnNuevo = new System.Windows.Forms.Button();
             this.cmbTipoUnidad = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
             this.numCantidad = new System.Windows.Forms.NumericUpDown();
@@ -55,12 +54,12 @@
             this.dgvReglas.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvReglas.Size = new System.Drawing.Size(1112, 615);
             this.dgvReglas.TabIndex = 0;
+            this.dgvReglas.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvReglas_CellClick);
             // 
             // panel1
             // 
             this.panel1.Controls.Add(this.btnEliminar);
             this.panel1.Controls.Add(this.btnGuardar);
-            this.panel1.Controls.Add(this.btnNuevo);
             this.panel1.Controls.Add(this.cmbTipoUnidad);
             this.panel1.Controls.Add(this.label3);
             this.panel1.Controls.Add(this.numCantidad);
@@ -75,34 +74,27 @@
             // 
             // btnEliminar
             // 
-            this.btnEliminar.Location = new System.Drawing.Point(644, 83);
+            this.btnEliminar.Location = new System.Drawing.Point(644, 59);
             this.btnEliminar.Name = "btnEliminar";
             this.btnEliminar.Size = new System.Drawing.Size(75, 23);
             this.btnEliminar.TabIndex = 8;
             this.btnEliminar.Text = "Eliminar";
             this.btnEliminar.UseVisualStyleBackColor = true;
+            this.btnEliminar.Click += new System.EventHandler(this.btnEliminar_Click);
             // 
             // btnGuardar
             // 
-            this.btnGuardar.Location = new System.Drawing.Point(644, 49);
+            this.btnGuardar.Location = new System.Drawing.Point(644, 24);
             this.btnGuardar.Name = "btnGuardar";
             this.btnGuardar.Size = new System.Drawing.Size(75, 23);
             this.btnGuardar.TabIndex = 7;
             this.btnGuardar.Text = "Guardar";
             this.btnGuardar.UseVisualStyleBackColor = true;
-            this.btnGuardar.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // btnNuevo
-            // 
-            this.btnNuevo.Location = new System.Drawing.Point(644, 11);
-            this.btnNuevo.Name = "btnNuevo";
-            this.btnNuevo.Size = new System.Drawing.Size(75, 23);
-            this.btnNuevo.TabIndex = 6;
-            this.btnNuevo.Text = "Nuevo";
-            this.btnNuevo.UseVisualStyleBackColor = true;
+            this.btnGuardar.Click += new System.EventHandler(this.btnGuardar_Click);
             // 
             // cmbTipoUnidad
             // 
+            this.cmbTipoUnidad.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbTipoUnidad.FormattingEnabled = true;
             this.cmbTipoUnidad.Location = new System.Drawing.Point(83, 59);
             this.cmbTipoUnidad.Name = "cmbTipoUnidad";
@@ -121,6 +113,11 @@
             // numCantidad
             // 
             this.numCantidad.Location = new System.Drawing.Point(83, 32);
+            this.numCantidad.Maximum = new decimal(new int[] {
+            50000,
+            0,
+            0,
+            0});
             this.numCantidad.Name = "numCantidad";
             this.numCantidad.Size = new System.Drawing.Size(124, 20);
             this.numCantidad.TabIndex = 3;
@@ -160,6 +157,7 @@
             this.Controls.Add(this.dgvReglas);
             this.Name = "FormGestionMenus";
             this.Text = "FormGestionMenus";
+            this.Load += new System.EventHandler(this.FormGestionMenus_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvReglas)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
@@ -175,7 +173,6 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox txtNombreMenu;
         private System.Windows.Forms.Button btnGuardar;
-        private System.Windows.Forms.Button btnNuevo;
         private System.Windows.Forms.ComboBox cmbTipoUnidad;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.NumericUpDown numCantidad;

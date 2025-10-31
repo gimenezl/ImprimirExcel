@@ -32,8 +32,6 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(dataGridViewEntregas));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripBtnCargarExcel = new System.Windows.Forms.ToolStripButton();
             this.toolStripBtnGuardarCambios = new System.Windows.Forms.ToolStripButton();
@@ -134,36 +132,17 @@
             // 
             // dataGridViewEntregas1
             // 
-            this.dataGridViewEntregas1.AccessibleDescription = "";
+            this.dataGridViewEntregas1.AllowUserToAddRows = false;
             this.dataGridViewEntregas1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dataGridViewEntregas1.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Arial", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridViewEntregas1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             this.dataGridViewEntregas1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewEntregas1.ContextMenuStrip = this.contextMenuStrip1;
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridViewEntregas1.DefaultCellStyle = dataGridViewCellStyle2;
             this.dataGridViewEntregas1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridViewEntregas1.Location = new System.Drawing.Point(0, 47);
             this.dataGridViewEntregas1.Name = "dataGridViewEntregas1";
-            this.dataGridViewEntregas1.ReadOnly = true;
-            this.dataGridViewEntregas1.RowHeadersVisible = false;
             this.dataGridViewEntregas1.Size = new System.Drawing.Size(1392, 596);
-            this.dataGridViewEntregas1.TabIndex = 2;
-            this.dataGridViewEntregas1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewEntregas1_CellContentClick);
-            this.dataGridViewEntregas1.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewEntregas1_CellDoubleClick_1);
+            this.dataGridViewEntregas1.TabIndex = 7;
+            this.dataGridViewEntregas1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
+            this.dataGridViewEntregas1.CellContentDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewEntregas1_CellDoubleClick_1);
             // 
             // dataGridViewEntregas
             // 
