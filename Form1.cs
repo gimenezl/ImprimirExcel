@@ -47,79 +47,95 @@ namespace Shonko1
         int currentIndex = 0;
         private void PrintDoc_PrintPage(object sender, PrintPageEventArgs e)
         {
-       
-            Font fontTitulo = new Font("Arial", 14, FontStyle.Bold);
-            Font fontSubTitulo = new Font("Arial", 12, FontStyle.Bold);
-            Font fontCampo = new Font("Arial", 11, FontStyle.Regular);
-            Font fontCampoNegrita = new Font("Arial", 11, FontStyle.Bold);
+            // 1. Fuentes, Logo y Pluma para el contorno
+            Font fontTitulo = new Font("Arial", 9, FontStyle.Bold);
+            Font fontSubTitulo = new Font("Arial", 8, FontStyle.Bold);
+            Font fontCampo = new Font("Arial", 7, FontStyle.Regular);
+            Font fontCampoNegrita = new Font("Arial", 7, FontStyle.Bold);
             SolidBrush pincelNegro = new SolidBrush(Color.Black);
+
+            // (Pluma para el contorno negro)
+            Pen penContorno = new Pen(Color.Black, 1);
 
             Image logo = null;
             try
             {
-         
-                logo = null;
+                
+                logo = Properties.Resources.unnamed;
             }
-            catch { /* No hacer nada, logo sigue null */ }
+            catch { }
 
-      
-            int etiquetasPorPagina = 4;
-            int anchoEtiqueta = 380;
-            int altoEtiqueta = 250;
-            int margenIzquierdo = e.MarginBounds.Left + 20;
-            int y = e.MarginBounds.Top;
+            // 2. Grilla 3x6 (18 etiquetas)
+            int etiquetasPorPagina = 18;
+            int numColumnas = 3;
+
+            // (Tamaño 72mm x 46.5mm -> 283x183 centésimas de pulgada)
+            int anchoEtiqueta = 283;
+            int altoEtiqueta = 183;
 
             var lista = (List<Entrega>)dataGridViewEntregas1.DataSource;
+            if (lista == null) return;
 
-            for (int i = 0; i < etiquetasPorPagina && currentIndex < lista.Count; i++)
+            // 3. Bucle para dibujar las 18 etiquetas
+            for (int i = 0; i < etiquetasPorPagina && currentIndex < lista.Count; i++)
             {
+                // (Calcular posición en la grilla 3x6)
+                int fila = i / numColumnas;
+                int col = i % numColumnas;
+
+                // (Calcular coordenadas X, Y)
+                int x = e.MarginBounds.Left + (col * anchoEtiqueta);
+                int y = e.MarginBounds.Top + (fila * altoEtiqueta);
+
                 var entrega = lista[currentIndex];
-                int x = margenIzquierdo;
 
-                e.Graphics.DrawRectangle(new Pen(pincelNegro, 1), x, y, anchoEtiqueta, altoEtiqueta);
+                // --- 4. Dibujar la Etiqueta ---
 
-                int x_texto = x + 120; 
+                // (Dibujar contorno)
+                e.Graphics.DrawRectangle(penContorno, x, y, anchoEtiqueta, altoEtiqueta);
 
-                // A. Dibujar Logo (sólo si existe)
-                if (logo != null)
+                // (Coordenadas ajustadas para el padding)
+                int x_logo = x + 5;
+                int y_logo = y + 5;
+                int x_texto_col1 = x + 10;
+                int x_texto_col2 = x + 150;
+                int x_texto_logo = x + 70;
+
+                // A. Logo
+                if (logo != null)
                 {
-                    e.Graphics.DrawImage(logo, x + 10, y + 10, 100, 100);
-                }
-                else
-                {
-                    // Si no hay logo, el texto empieza más a la izquierda
-                    x_texto = x + 15;
+                    e.Graphics.DrawImage(logo, x_logo, y_logo, 60, 60);
                 }
 
-                // B. Título
-                e.Graphics.DrawString("Identificación de Contenedores", fontTitulo, pincelNegro, x_texto, y + 20);
+                // B. Título
+                e.Graphics.DrawString("Identificación de", fontTitulo, pincelNegro, x_texto_logo, y + 10);
+                e.Graphics.DrawString("Contenedores", fontTitulo, pincelNegro, x_texto_logo, y + 25);
 
-                // C. Escuela
-                e.Graphics.DrawString(entrega.Escuela, fontSubTitulo, pincelNegro, x_texto, y + 55);
+                // C. Escuela
+                e.Graphics.DrawString(entrega.Escuela, fontSubTitulo, pincelNegro, x_texto_logo, y + 50);
 
-                // D. Raciones y Peso (en la misma línea, debajo del logo/título)
-                e.Graphics.DrawString("Raciones: ", fontCampo, pincelNegro, x + 15, y + 130);
-                e.Graphics.DrawString(entrega.Cantidad.ToString(), fontCampoNegrita, pincelNegro, x + 95, y + 130);
+                // D. Raciones y Peso
+                e.Graphics.DrawString("Raciones:", fontCampo, pincelNegro, x_texto_col1, y + 80);
+                e.Graphics.DrawString(entrega.Cantidad.ToString(), fontCampoNegrita, pincelNegro, x_texto_col1 + 60, y + 80);
 
-                e.Graphics.DrawString("Peso Total: ", fontCampo, pincelNegro, x + 200, y + 130);
-                e.Graphics.DrawString(entrega.Peso, fontCampoNegrita, pincelNegro, x + 285, y + 130);
+                e.Graphics.DrawString("Peso Total:", fontCampo, pincelNegro, x_texto_col2, y + 80);
+                e.Graphics.DrawString(entrega.Peso, fontCampoNegrita, pincelNegro, x_texto_col2 + 60, y + 80);
 
-                // E. Fecha y Turno
-                e.Graphics.DrawString("Fecha: ", fontCampo, pincelNegro, x + 15, y + 170);
-                e.Graphics.DrawString(entrega.Fecha, fontCampoNegrita, pincelNegro, x + 95, y + 170);
+                // E. Fecha y Turno
+                e.Graphics.DrawString("Fecha:", fontCampo, pincelNegro, x_texto_col1, y + 105);
+                e.Graphics.DrawString(entrega.Fecha, fontCampoNegrita, pincelNegro, x_texto_col1 + 60, y + 105);
 
-                e.Graphics.DrawString("Turno: ", fontCampo, pincelNegro, x + 200, y + 170);
-                e.Graphics.DrawString(entrega.Turno, fontCampoNegrita, pincelNegro, x + 285, y + 170);
+                e.Graphics.DrawString("Turno:", fontCampo, pincelNegro, x_texto_col2, y + 105);
+                e.Graphics.DrawString(entrega.Turno, fontCampoNegrita, pincelNegro, x_texto_col2 + 60, y + 105);
 
                 // F. Menú
-                e.Graphics.DrawString("Menú: ", fontCampo, pincelNegro, x + 15, y + 210);
-                e.Graphics.DrawString(entrega.Menu, fontCampoNegrita, pincelNegro, x + 95, y + 210);
+                e.Graphics.DrawString("Menú:", fontCampo, pincelNegro, x_texto_col1, y + 130);
+                e.Graphics.DrawString(entrega.Menu, fontCampoNegrita, pincelNegro, x_texto_col1 + 60, y + 130);
 
-                y += altoEtiqueta + 20; // Espacio entre etiquetas
                 currentIndex++;
             }
 
-       
+            // (Verifica si quedan más etiquetas para otra página)
             e.HasMorePages = currentIndex < lista.Count;
         }
 
@@ -382,16 +398,20 @@ namespace Shonko1
 
         private void toolStripButton5_Click(object sender, EventArgs e)
         {
-            currentIndex = 0;
+            currentIndex = 0; // Reinicia el contador
 
-            PrintDocument printDoc = new PrintDocument();
-            printDoc.DefaultPageSettings.PaperSize = new PaperSize("A4", 827, 1169);
-            printDoc.DefaultPageSettings.Margins = new Margins(50, 50, 50, 50);
+            PrintDocument printDoc = new PrintDocument();
+
+            // Configurar tamaño CARTA (8.5 x 11 pulgadas)
+            printDoc.DefaultPageSettings.PaperSize = new PaperSize("Letter", 850, 1100);
+
+            // Márgenes
+            printDoc.DefaultPageSettings.Margins = new Margins(25, 25, 25, 25);
+
             printDoc.PrintPage += PrintDoc_PrintPage;
 
-            FormVistaPrevia vistaPrevia = new FormVistaPrevia(printDoc);
+            FormVistaPrevia vistaPrevia = new FormVistaPrevia(printDoc);
             vistaPrevia.ShowDialog();
-
         }
 
         private void editarFilaToolStripMenuItem_Click(object sender, EventArgs e)

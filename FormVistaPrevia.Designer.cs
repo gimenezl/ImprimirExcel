@@ -18,6 +18,9 @@
         private void InitializeComponent()
         {
             this.panelControles = new System.Windows.Forms.Panel();
+            this.btnSiguiente = new System.Windows.Forms.Button();
+            this.btnAnterior = new System.Windows.Forms.Button();
+            this.lblPagina = new System.Windows.Forms.Label();
             this.btnCancelar = new System.Windows.Forms.Button();
             this.btnImprimir = new System.Windows.Forms.Button();
             this.printPreviewControl1 = new System.Windows.Forms.PrintPreviewControl();
@@ -27,6 +30,9 @@
             // panelControles
             // 
             this.panelControles.BackColor = System.Drawing.SystemColors.ControlLight;
+            this.panelControles.Controls.Add(this.btnSiguiente);
+            this.panelControles.Controls.Add(this.btnAnterior);
+            this.panelControles.Controls.Add(this.lblPagina);
             this.panelControles.Controls.Add(this.btnCancelar);
             this.panelControles.Controls.Add(this.btnImprimir);
             this.panelControles.Dock = System.Windows.Forms.DockStyle.Top;
@@ -34,6 +40,36 @@
             this.panelControles.Name = "panelControles";
             this.panelControles.Size = new System.Drawing.Size(784, 50);
             this.panelControles.TabIndex = 0;
+            // 
+            // btnSiguiente
+            // 
+            this.btnSiguiente.Location = new System.Drawing.Point(168, 27);
+            this.btnSiguiente.Name = "btnSiguiente";
+            this.btnSiguiente.Size = new System.Drawing.Size(75, 23);
+            this.btnSiguiente.TabIndex = 2;
+            this.btnSiguiente.Text = ">";
+            this.btnSiguiente.UseVisualStyleBackColor = true;
+            this.btnSiguiente.Click += new System.EventHandler(this.btnSiguiente_Click_1);
+            // 
+            // btnAnterior
+            // 
+            this.btnAnterior.Location = new System.Drawing.Point(0, 27);
+            this.btnAnterior.Name = "btnAnterior";
+            this.btnAnterior.Size = new System.Drawing.Size(75, 23);
+            this.btnAnterior.TabIndex = 3;
+            this.btnAnterior.Text = "<";
+            this.btnAnterior.UseVisualStyleBackColor = true;
+            this.btnAnterior.Click += new System.EventHandler(this.btnAnterior_Click_1);
+            // 
+            // lblPagina
+            // 
+            this.lblPagina.Location = new System.Drawing.Point(71, 27);
+            this.lblPagina.Name = "lblPagina";
+            this.lblPagina.Size = new System.Drawing.Size(100, 23);
+            this.lblPagina.TabIndex = 4;
+            this.lblPagina.Text = "Página 1";
+            this.lblPagina.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblPagina.Click += new System.EventHandler(this.lblPagina_Click);
             // 
             // btnCancelar
             // 
@@ -62,12 +98,13 @@
             // printPreviewControl1
             // 
             this.printPreviewControl1.AutoZoom = false;
+            this.printPreviewControl1.Columns = 2;
             this.printPreviewControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.printPreviewControl1.Location = new System.Drawing.Point(0, 50); // Debajo del panel
+            this.printPreviewControl1.Location = new System.Drawing.Point(0, 50);
             this.printPreviewControl1.Name = "printPreviewControl1";
             this.printPreviewControl1.Size = new System.Drawing.Size(784, 511);
             this.printPreviewControl1.TabIndex = 1;
-            this.printPreviewControl1.Zoom = 0.5; // Zoom inicial
+            this.printPreviewControl1.Zoom = 0.5D;
             // 
             // FormVistaPrevia
             // 
@@ -78,9 +115,10 @@
             this.Controls.Add(this.panelControles);
             this.Name = "FormVistaPrevia";
             this.Text = "Vista Previa de Etiquetas";
-            this.WindowState = System.Windows.Forms.FormWindowState.Maximized; // Abrir maximizado
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.panelControles.ResumeLayout(false);
             this.ResumeLayout(false);
+
         }
 
         #endregion
@@ -89,5 +127,8 @@
         private System.Windows.Forms.Button btnCancelar;
         private System.Windows.Forms.Button btnImprimir;
         private System.Windows.Forms.PrintPreviewControl printPreviewControl1;
+        private System.Windows.Forms.Button btnSiguiente;
+        private System.Windows.Forms.Button btnAnterior;
+        private System.Windows.Forms.Label lblPagina;
     }
 }
